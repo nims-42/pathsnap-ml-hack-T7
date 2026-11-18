@@ -1,0 +1,5 @@
+radius_m,miss_rate,mean_candidates_per_obs,pct_obs_no_candidates
+30,0.1364,3.8176,10.3853
+50,0.1209,4.8667,9.0068
+75,0.1165,5.5777,7.8992
+100,0.1123,6.1689,3.8717
