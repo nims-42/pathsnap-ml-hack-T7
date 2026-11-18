@@ -1,0 +1,11 @@
+raw_data/
+Student folder/
+__pycache__/
+*.pyc
+.venv/
+.env
+*.key
+results/*.parquet
+results/stest_prob_*.parquet
+artifacts/candidates/
+.ipynb_checkpoints/
