@@ -67,7 +67,7 @@ and is never part of a response.
 | `preprocessing/` | loading, projection to metres, candidate arcs, label alignment, features, road graph, Folium maps, EDA, radius sweep |
 | `models/` | cross-validation harness, five-model comparison, Optuna tuning, figures |
 | `hmm/` | Viterbi decoder and decoder tuning (`evaluate_hmm`) |
-| `app/` | FastAPI backend, HTML + Leaflet UI (`ui.html`, served by `ui.py`), deployment config |
+| `app/` | FastAPI backend, HTML + UI (`ui.html`, served by `ui.py`), deployment config |
 | `pipeline.py` | `predict_trip` (never reads labels) and `score_trip` (server-side scoring) |
 | `artifacts/` | saved model, feature list, HMM configuration |
 | `results/` | every CSV, figure and map used in the report |

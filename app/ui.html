@@ -4,8 +4,6 @@
 <meta charset="utf-8">
 <title>PathSnap</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   body { margin: 0; font-family: system-ui, sans-serif; background: #f6f7f9; color: #1d2330; }
   header { padding: 14px 22px; background: #1d2330; color: #fff; }
@@ -22,7 +20,7 @@
   .card .k { font-size: 12px; color: #5b6578; }
   #status { padding: 0 22px 8px; color: #5b6578; min-height: 20px; }
   #status.err { color: #b42318; }
-  #map { height: 62vh; margin: 0 22px 22px; border: 1px solid #dde1e8; border-radius: 8px; }
+  #map { width: calc(100% - 44px); height: 62vh; margin: 0 22px 22px; border: 1px solid #dde1e8; border-radius: 8px; background: #fff; }
   .legend { padding: 0 22px 6px; font-size: 13px; color: #5b6578; }
   .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #1f77b4; vertical-align: middle; }
   .line { display: inline-block; width: 22px; height: 0; border-top: 3px dashed #d62728; vertical-align: middle; }
@@ -47,17 +45,13 @@
   <div class="card"><div class="v" id="m_time"></div><div class="k">API time</div></div>
 </div>
 <div class="legend" id="legend" style="display:none">
-  <span class="dot"></span> GPS observations &nbsp;&nbsp; <span class="line"></span> predicted route
+  Map drawn with Folium. Blue dots: GPS observations. Red line: predicted route. Layers can be toggled on the map.
 </div>
-<div id="map"></div>
+<iframe id="map" title="Folium map"></iframe>
 
 <script>
 const $ = id => document.getElementById(id);
 const pct = x => (x == null || isNaN(x)) ? "n/a" : (100 * x).toFixed(2) + "%";
-let map = L.map("map").setView([13.0, 77.6], 12);
-L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-            { maxZoom: 19, attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
-let layer = L.layerGroup().addTo(map);
 
 function say(msg, err) { $("status").textContent = msg; $("status").className = err ? "err" : ""; }
 const api = () => $("api").value.replace(/\/+$/, "");
@@ -104,12 +98,9 @@ function show(res) {
   $("m_time").textContent = res.seconds.toFixed(2) + " s";
   $("cards").style.display = $("legend").style.display = "";
 
-  layer.clearLayers();
-  res.pred_polylines.forEach(line =>
-    L.polyline(line, { color: "#d62728", weight: 4, opacity: .9, dashArray: "6 6" }).addTo(layer));
-  res.gps.forEach(p =>
-    L.circleMarker(p, { radius: 3, color: "#1f77b4", weight: 1, fillOpacity: .8 }).addTo(layer));
-  map.fitBounds(L.latLngBounds(res.gps), { padding: [20, 20] });
+  fetch("/map", { method: "POST", headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ gps: res.gps, pred_polylines: res.pred_polylines }) })
+    .then(r => r.text()).then(html => { $("map").srcdoc = html; });
 }
 
 $("reload").onclick = connect;
