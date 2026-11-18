@@ -35,6 +35,10 @@ CAND_RADIUS = 50.0    # metres
 MAX_CANDS = 8
 SAMPLE_SPACING = 10.0 # metres between KD-tree samples along each arc
 
+# training trips whose aligned reference route lies further than this (median, metres) from their own GPS
+# points are treated as mismatched reference data and left out of model training
+LABEL_DIST_MAX = 50.0
+
 
 # route continuity: consecutive predictions count as connected if reachable within this many arcs
 CONTINUITY_HOPS = 3

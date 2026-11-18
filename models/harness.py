@@ -8,11 +8,19 @@ from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score, log_los
                              precision_score, recall_score)
 from sklearn.model_selection import GroupKFold
 
-from config import RESULTS, SEED, STEST_DIR
+from config import LABEL_DIST_MAX, RESULTS, SEED, STEST_DIR
 from preprocessing.network import RoadGraph
 from metrics import classifier_only_pred, top1_accuracy
 from preprocessing.features import FEATURES
 from preprocessing.io import load_trip
+
+
+def excluded_train_trips():
+    """Training trips whose reference route does not match their GPS (see config.LABEL_DIST_MAX)."""
+    q = pd.read_csv(RESULTS / "candidate_quality.csv", dtype={"trip_id": str})
+    q["trip_id"] = q["trip_id"].str.zfill(8)
+    bad = q[(q["split"] == "train") & (q["label_dist_median"] > LABEL_DIST_MAX)]
+    return bad[["trip_id", "n_obs", "miss_rate", "label_dist_median"]]
 
 
 def load_tables():
@@ -20,6 +28,13 @@ def load_tables():
     te = pd.read_parquet(RESULTS / "features_stest.parquet")
     otr = pd.read_parquet(RESULTS / "obs_train.parquet")
     ote = pd.read_parquet(RESULTS / "obs_stest.parquet")
+    bad = excluded_train_trips()
+    bad.to_csv(RESULTS / "excluded_trips.csv", index=False)
+    ids = set(bad["trip_id"])
+    if ids:
+        print(f"excluding {len(ids)} mismatched training trips: {sorted(ids)}")
+    tr = tr[~tr["trip_id"].isin(ids)]
+    otr = otr[~otr["trip_id"].isin(ids)]
     return tr.reset_index(drop=True), te.reset_index(drop=True), otr, ote
 
 
