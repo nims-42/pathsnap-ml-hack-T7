@@ -42,3 +42,6 @@ LABEL_DIST_MAX = 50.0
 
 # route continuity: consecutive predictions count as connected if reachable within this many arcs
 CONTINUITY_HOPS = 3
+
+# HMM defaults (overridden by artifacts/hmm_config.json once tuned)
+HMM_DEFAULTS = dict(beta=30.0, alpha=1.0, max_gap_s=30.0, dijkstra_limit=1500.0)
