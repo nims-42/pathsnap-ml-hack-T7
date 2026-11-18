@@ -65,6 +65,23 @@ def main():
         plt.tight_layout()
         plt.savefig(RESULTS / "plot_mlp_loss.png", dpi=150)
 
+    if (RESULTS / "tuned_vs_untuned.csv").exists():
+        t = pd.read_csv(RESULTS / "tuned_vs_untuned.csv")
+        fig, ax = plt.subplots(1, 2, figsize=(10, 4))
+        bar(ax[0], t, ["test_top1", "test_macro_f1"], "Tuned vs untuned model (student-test)", ["Top-1", "macro F1"])
+        ax[1].bar(t["model"], t["test_log_loss"], color="#d62728")
+        ax[1].set_title("Log loss")
+        plt.tight_layout()
+        plt.savefig(RESULTS / "plot_tuned_vs_untuned.png", dpi=150)
+    if (RESULTS / "optuna_trials.csv").exists():
+        o = pd.read_csv(RESULTS / "optuna_trials.csv")
+        fig, ax = plt.subplots(figsize=(6, 4))
+        ax.plot(o["number"], o["value"], "o-", ms=3, label="trial")
+        ax.plot(o["number"], o["value"].cummin(), label="best so far")
+        ax.set(title="Optuna search (CV log loss)", xlabel="trial")
+        ax.legend()
+        plt.tight_layout()
+        plt.savefig(RESULTS / "plot_optuna.png", dpi=150)
     print("plots written to results/")
 
 

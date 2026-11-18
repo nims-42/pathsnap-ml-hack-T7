@@ -28,6 +28,7 @@ from preprocessing.features import FEATURES
 
 LGBM_DEFAULT = dict(n_estimators=300, learning_rate=0.05, num_leaves=31, random_state=SEED,
                     n_jobs=-1, verbose=-1)
+RF_DEFAULT = dict(n_estimators=200, min_samples_leaf=5, n_jobs=-1, random_state=SEED)
 
 
 def model_zoo():
@@ -40,8 +41,7 @@ def model_zoo():
                                                                      algorithm="kd_tree", n_jobs=-1)),
                 "N/A (non-parametric, no loss minimised)"),
         "random_forest": ("Ensemble (bagging)",
-                          RandomForestClassifier(n_estimators=200, min_samples_leaf=5, n_jobs=-1,
-                                                 random_state=SEED),
+                          RandomForestClassifier(**RF_DEFAULT),
                           "Gini impurity"),
         "lightgbm": ("Boosting", LGBMClassifier(**LGBM_DEFAULT), "log loss (cross-entropy)"),
         "mlp": ("Neural network",
