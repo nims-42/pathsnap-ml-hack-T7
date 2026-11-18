@@ -3,8 +3,12 @@ pandas
 scipy
 scikit-learn
 lightgbm
+optuna
 pyproj
 pyarrow
 joblib
 matplotlib
 folium
+fastapi
+uvicorn
+requests

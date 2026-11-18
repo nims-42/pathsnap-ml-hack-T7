@@ -1,5 +1,9 @@
-"""Folium map of one trip: GPS observations, road network, reference route and (later) the predicted route.
-Uses the reference route, so it is for analysis and the report only."""
+"""Folium maps.
+
+make_trip_map        analysis map: GPS, road network, reference route and predicted route (report only,
+                     uses the reference route).
+make_prediction_map  what the UI shows: GPS + predicted route only, built from the API response.
+"""
 import folium
 import numpy as np
 
@@ -24,7 +28,7 @@ def _legend(html_items):
 def make_trip_map(trip, pred_obs=None, pred_arcs=None, out_html=None, network_margin_m=300):
     """pred_obs: DataFrame with lat/lon of the observations used for prediction (optional)."""
     tr = trip["track"]
-    m = folium.Map(location=[tr["lat"].mean(), tr["lon"].mean()], zoom_start=14, tiles="cartodbpositron")
+    m = folium.Map(location=[tr["lat"].mean(), tr["lon"].mean()], zoom_start=14, tiles="OpenStreetMap")
     m.fit_bounds([[tr["lat"].min(), tr["lon"].min()], [tr["lat"].max(), tr["lon"].max()]])
     legend = []
 
@@ -64,4 +68,22 @@ def make_trip_map(trip, pred_obs=None, pred_arcs=None, out_html=None, network_ma
     folium.LayerControl(collapsed=False).add_to(m)
     if out_html:
         m.save(str(out_html))
+    return m
+
+
+def make_prediction_map(gps_latlon, pred_polylines, title=None):
+    """gps_latlon: [[lat, lon], ...]; pred_polylines: [[[lat, lon], ...], ...] (one per segment)."""
+    gps = np.asarray(gps_latlon)
+    m = folium.Map(location=gps.mean(axis=0).tolist(), zoom_start=14, tiles="OpenStreetMap")
+    m.fit_bounds([gps.min(axis=0).tolist(), gps.max(axis=0).tolist()])
+    g_gps = folium.FeatureGroup(name="GPS observations")
+    for lat, lon in gps:
+        folium.CircleMarker([lat, lon], radius=2, color="#1f77b4", fill=True, weight=1).add_to(g_gps)
+    g_gps.add_to(m)
+    g_pred = folium.FeatureGroup(name="predicted route")
+    for line in pred_polylines:
+        folium.PolyLine(line, color="#d62728", weight=4, opacity=0.9).add_to(g_pred)
+    g_pred.add_to(m)
+    m.get_root().html.add_child(_legend([("#1f77b4", "GPS observations"), ("#d62728", "predicted route")]))
+    folium.LayerControl(collapsed=False).add_to(m)
     return m
